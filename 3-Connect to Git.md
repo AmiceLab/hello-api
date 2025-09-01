@@ -82,7 +82,36 @@ Authentication Type:
 - Serious project -> User-assigned identity
 - Simple trial -> Basic authentication
 
-Ind
+1️⃣ Create the folder and file
+
+In your local hello-api project:
+
+mkdir -p .github/workflows
+
+Create the workflow file:
+
+touch .github/workflows/main_helloapi-test.yml
+
+2️⃣ Paste the workflow YAML
+
+Open main_helloapi-test.yml in VS Code or your editor, and paste the workflow YAML you copied from Azure.
+
+3️⃣ Add, commit, push
+git add .github/workflows/main_helloapi-test.yml
+git commit -m "Add GitHub Actions workflow for Azure CI/CD"
+git push origin main
+
+Workflow option: User availabe workflow
+
+save (above) --> may see error
+
+What to do next
+
+Go to GitHub repo → Actions on top → check that main_helloapi-test.yml exists
+
+git add .
+git commit -m "Trigger first CI/CD deployment"
+git push origin main
 .
 .
 .
