@@ -112,6 +112,12 @@ Go to GitHub repo → Actions on top → check that main_helloapi-test.yml exist
 git add .
 git commit -m "Trigger first CI/CD deployment"
 git push origin main
+
+Go to GitHub → Actions tab → see if the workflow runs
+
+Once it finishes, visit your App Service:
+
+https://helloapi-test.azurewebsites.net/api/hello
 .
 .
 .
