@@ -9,7 +9,9 @@ In Summary, what we are doing:
 5. CI/CD setup: Deployment Center → GitHub Actions → automatic deploy.
 6. Budget management: set alerts, stop app when idle.
 
-## Step 1 – Upload to GitHub
+---
+
+## Step 1 – Upload Project to GitHub
 
 For both environments, the flow is similar:
 
@@ -17,167 +19,106 @@ Create GitHub repo for hello-api
 
 Push your local Node.js API (hello-api) to GitHub
 
+```bash
 git init
 git add .
 git commit -m "first commit"
 git branch -M main
 git remote add origin https://github.com/AmiceLab/hello-api.git
 git push -u origin main
+```
 
-## Step 2 - setup Azure App Service (Option1)
+---
 
-[Login to Main Page](https://portal.azure.com/#home)
+## Step 2 - setup Azure App Service
 
-Select App Service
-Create Web App
-Select the Subscription & Resource Group (Setup if not yet)
-Instance Details: helloapi-test
-Publish: code
-Runtime stack: Node 22 LTS
-Operation System: Windows
-Region: Canada East
-Windows Plan (Canada East) : (New) ASP-helloapitestgroup-9xxx
-Price plan: Free F1 60 CPU Minutes/day included
+(DashBoard)
+[Login to Main Page of Azure](https://portal.azure.com/#home)
 
-Click: Review + Create
+Setup the Window App Service with following steps/configuration:
 
-Review and Click: Create
+- Select `App Service`
+- Create `Web App`
+- Select the `Subscription` & `Resource Group` (Setup if not yet)
+- Instance Details: `helloapi-test`
+- Publish: `code`
+- Runtime stack: `Node 22 LTS`
+- Operation System: `Windows`
+- Region: `Canada East`
+- Windows Plan (Canada East): `(New) ASP-helloapitestgroup-9xxx`
+- Price plan: `Free F1 60 CPU Minutes/day included`
 
-## Step 3 - Set the Budget ALERT (email alert only, you have to stop MANUALLY)
+Click: `Review + Create`
 
-from Dash Board
-Select "Subscription" name you set
-Left-hand side Cost Management
--> Cost Management
--> Budgets
+Review it, then Click: `Create`
 
-OR Navigate to Cost Management + Billing
+---
 
-set $5/mth
-set alert threadhold
-set 2 emails
+## Step 3 - Set the Budget ALERT
 
-- Again, email alert only, you have to stop MANUALLY in Azure after receiving alert.
+**email alert only, you have to stop MANUALLY**
+
+- from DashBoard -> Select `Subscription` name you set
+- Left-hand side: -> `Cost Management`-> `Budgets`
+  (OR Navigate to `Cost Management + Billing`)
+
+- set $5/mth | set alert threadhold | set 2 emails
+
+_Again, email alert only, you have to stop MANUALLY in Azure after receiving alert._
+
+---
 
 ## Step 4 - Create CI/CD workflow:
 
+### 4.1 - Setup Git Deployment in Azure
+
+---
+
 https://portal.azure.com/#home
 
-our App Service -> helloapi-test
-Go to the Web App (called helloapi-test) -> Deployment -> Deployment Center
-Select `Source` --> `GitHub`
-Click `Authorize`
-Will forward to a po-up brovser to Select Your GitHub
+- from DashBoard -> our App Service `helloapi-test`
+- Left-hand side: -> `Deployment` -> `Deployment Center`
+- Select `Source` -> `GitHub`
+- Click `Authorize` -> a pop-up brovser to Select Your GitHub
+- Will route back to Azure page to continue:
+- `Organization` → your GitHub account
+- `Repository` → hello-api
+- `Branch` → main
+- `Workflow option` -> Add a workflow: Add a new workflow file main_helloapi-test.yml in the selected repository and branch.
 
-Will route back to Azure page to continue:
+- `Authentication Type` -> User-assigned identity
 
-- Organization → your GitHub account
-- Repository → hello-api
-- Branch → main
+* SAVE on top
+  -> a `main_helloapi-test.yml` will be added to the Remote Repo
 
-Workflow option: (Select) Add a workflow: Add a new workflow file main_helloapi-test.yml in the selected repository and branch.
+CI/CD should established. But may be error.
 
-Authentication Type:
+---
 
-- Serious project -> User-assigned identity
-- Simple trial -> Basic authentication
+### 4.2 - Fix Issue in Yml
 
-1️⃣ Create the folder and file
+---
 
-In your local hello-api project:
+_Steps:_
 
-mkdir -p .github/workflows
+1. Go to the Git Repo.
+2. found out `main_helloapi-test.yml`
+3. comment out `npm run test`
 
-Create the workflow file:
+`Actions` would run again
 
-touch .github/workflows/main_helloapi-test.yml
+Go the `Actions` on top -> should see `Workflow Success`
 
-2️⃣ Paste the workflow YAML
+---
 
-Open main_helloapi-test.yml in VS Code or your editor, and paste the workflow YAML you copied from Azure.
+### 4.3 - Git Pull new file from Origin
 
-3️⃣ Add, commit, push
-git add .github/workflows/main_helloapi-test.yml
-git commit -m "Add GitHub Actions workflow for Azure CI/CD"
-git push origin main
+---
 
-Workflow option: User availabe workflow
+Once finishes, in local terminal
+`git push origin main`  
+to download the YML as well.
 
-save (above) --> may see error
-
-What to do next
-
-Go to GitHub repo → Actions on top → check that main_helloapi-test.yml exists
-
-git add .
-git commit -m "Trigger first CI/CD deployment"
-git push origin main
-
-Go to GitHub → Actions tab → see if the workflow runs
-
-.
-Once it finishes, visit your App Service:
+Once it finishes, visit your App Service: (or Postman)
 
 https://helloapi-test.azurewebsites.net/api/hello
-.
-.
-.
-
-Azure App Service → Use GitHub Actions with azure/webapps-deploy@v2
-
-Windows VM → Use GitHub Actions to build and deploy via WinRM, SSH, or Remote PowerShell
-
-Baby step example (Azure App Service):
-
-name: Node.js CI/CD
-
-on:
-push:
-branches: - main
-
-jobs:
-build-and-deploy:
-runs-on: ubuntu-latest
-steps: - uses: actions/checkout@v3 - name: Setup Node.js
-uses: actions/setup-node@v3
-with:
-node-version: '22' # LTS version - run: npm install - run: npm run build # if you have build steps - name: Deploy to Azure Web App
-uses: azure/webapps-deploy@v2
-with:
-app-name: YOUR_APP_NAME
-slot-name: production
-publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
-
-Step 3 – Record all baby steps
-
-I suggest a markdown guide like your Hello API setup:
-
-Step 0: Open folder & check Node.js/npm versions
-
-Step 1: Initialize project, add scripts
-
-Step 2: Install nodemon, express
-
-Step 3: Create app.js and test locally
-
-Step 4: GitHub repo creation & initial commit
-
-Step 5: Create CI/CD workflow (Azure or Windows VM)
-
-Step 6: Deploy & test endpoint (/api/hello)
-
-Step 7: Verify logs, version, and troubleshoot
-
-Each step can include commands, screenshots, and tips, so your team can follow without missing anything.
-
-Step 4 – Practice first
-
-I recommend practice deploying Node.js API to Azure App Service first, because:
-
-Easier to configure
-
-CI/CD integration is well documented
-
-You can quickly verify your /api/hello endpoint
-
-Once this works, replicate the workflow for Windows VM if needed.
