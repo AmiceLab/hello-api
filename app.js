@@ -8,6 +8,10 @@ app.get('/api/hello', (req, res) => {
   res.json({ message: 'Hello from Node.js API!' });
 });
 
+app.get('/api/bye', (req, res) => {
+  res.json({ message: 'Good Night from Node.js API!' });
+});
+
 app.listen(port, () => {
   console.log(`API running on port ${port}`);
 });
